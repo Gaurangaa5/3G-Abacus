@@ -35,16 +35,72 @@ main{width:100%;max-width:1200px;margin:auto;padding:14px 10px 35px}
 .guide{max-width:900px;margin:18px auto 0;background:#121214;border:1px solid #29292e;border-radius:12px;padding:13px}.guide button{width:100%;background:none;color:#ddd;border:0;text-align:left;cursor:pointer;font-weight:700}.guide-content{margin-top:12px;padding-top:12px;border-top:1px solid #29292e;color:#aaa;font-size:12px;line-height:1.6}.guide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.guide-card{padding:9px;border-radius:8px;background:#1b1b1f;border:1px solid #303036}.gold{border-color:#7a5515;background:#241b09;color:#fbbf24}.red{border-color:#6d2029;background:#271013;color:#ffb3bb}
 .footer{text-align:center;color:#555;font-size:11px;border-top:1px solid #17171a;padding:12px}
 @media(max-width:700px){.brand{display:none}.header-inner{justify-content:center}.lesson-grid{grid-template-columns:1fr}.big{font-size:52px}.lesson-top{flex-wrap:wrap}.stats{order:3;width:100%}.guide-grid{grid-template-columns:1fr 1fr}}
+
+/* SOLVE MODE */
+.solve-panel{max-width:900px;margin:0 auto 14px;background:linear-gradient(135deg,#171717,#10131d);border:1px solid rgba(245,158,11,.45);border-radius:18px;padding:18px;box-shadow:0 12px 35px #000b}
+.solve-title{font-weight:800;font-size:18px}
+.solve-muted{color:#999;font-size:12px;margin-top:4px}
+.expression-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:15px}
+.number-input{width:100px;background:#0d0d10;color:#eee;border:1px solid #444;border-radius:9px;padding:10px 11px;font:inherit;font-weight:700;text-align:center}
+.operator-select{width:70px;background:#202023;color:#eee;border:1px solid #444;border-radius:9px;padding:10px 8px;font:inherit;font-weight:800;text-align:center}
+.remove-term{background:#3a1015;color:#ffb3bb;border:1px solid #6d2029;border-radius:8px;padding:8px 10px;cursor:pointer}
+.add-term{margin-top:10px;background:#202023;color:#ddd;border:1px solid #444;border-radius:9px;padding:9px 13px;cursor:pointer}
+.solve-start{margin-top:13px;background:#f59e0b;color:#111;border:0;border-radius:11px;padding:11px 20px;font-weight:900;cursor:pointer}
+.solve-work{margin-top:15px;border-top:1px solid #292929;padding-top:15px}
+.solve-step-card{background:#101012;border:1px solid #333;border-radius:13px;padding:14px;text-align:center}
+.solve-step-number{font-size:12px;color:#fbbf24;font-weight:800;letter-spacing:1px}
+.solve-instruction{font-size:18px;font-weight:800;margin:7px 0}
+.solve-equation{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums}
+.solve-detail{font-size:12px;color:#aaa;margin-top:7px;line-height:1.5}
+.solve-actions{display:flex;justify-content:center;gap:10px;margin-top:13px;flex-wrap:wrap}
+.solve-nav-btn{background:#202023;color:#eee;border:1px solid #444;border-radius:10px;padding:11px 18px;font-weight:800;cursor:pointer}
+.solve-nav-btn:disabled{opacity:.35;cursor:not-allowed}
+.solve-finish{color:#34d399;font-weight:800;margin-top:10px}
+.solve-expression-preview{margin-top:10px;color:#aaa;font-size:13px}
+.bead.solve-moving{animation:solveBeadMove .28s ease both}
+@keyframes solveBeadMove{
+  0%{transform:translateY(-7px) scale(.96);filter:brightness(1.35)}
+  55%{transform:translateY(3px) scale(1.02);filter:brightness(1.18)}
+  100%{transform:translateY(0) scale(1);filter:brightness(1)}
+}
+@media(max-width:700px){
+  .number-input{width:82px}.operator-select{width:60px}.solve-equation{font-size:24px}
+}
+
 </style>
 </head>
 <body>
 <header class="header"><div class="header-inner">
 <div class="brand">Virtual 3G Abacus</div>
-<div class="nav"><button class="tab active" id="tabAbacus">ABACUS</button><button class="tab" id="tabLessons">LESSONS</button></div>
+<div class="nav"><button class="tab active" id="tabAbacus">ABACUS</button><button class="tab" id="tabLessons">LESSONS</button><button class="tab" id="tabSolve">SOLVE</button></div>
 <div><button class="control" id="soundBtn">🔊 Sound</button><button class="control" id="resetBtn">↻ Reset</button></div>
 </div></header>
 <main>
 <section id="lesson" class="lesson" style="display:none"></section>
+
+<section id="solvePanel" class="solve-panel" style="display:none">
+  <div class="solve-title">Solve Step-by-Step</div>
+  <div class="solve-muted">Build an expression, then watch the abacus solve it one step at a time.</div>
+  <div id="expressionRows"></div>
+  <button class="add-term" id="addTermBtn">＋ Add Number</button>
+  <div id="solveExpressionPreview" class="solve-expression-preview"></div>
+  <button class="solve-start" id="startSolveBtn">START SOLUTION</button>
+
+  <div id="solveWork" class="solve-work" style="display:none">
+    <div class="solve-step-card">
+      <div id="solveStepNumber" class="solve-step-number"></div>
+      <div id="solveInstruction" class="solve-instruction"></div>
+      <div id="solveEquation" class="solve-equation"></div>
+      <div id="solveDetail" class="solve-detail"></div>
+      <div id="solveFinished" class="solve-finish" style="display:none">✓ Solution complete</div>
+    </div>
+    <div class="solve-actions">
+      <button class="solve-nav-btn" id="prevSolveBtn">← Previous Step</button>
+      <button class="solve-nav-btn" id="nextSolveBtn">Next Step →</button>
+    </div>
+  </div>
+</section>
+
 <div class="abacus-wrap"><div class="frame"><div class="inner"><div class="rail"></div><div id="columns" class="columns"></div><div class="rail"></div></div></div></div>
 <section class="panel" style="max-width:900px;margin:14px auto 0"><div class="label">CURRENT VALUE</div><div id="current" class="big">0</div><div class="digits"><span class="pill">Tens: <b id="tens">0</b></span><span class="pill">Ones: <b id="ones">0</b></span><span class="pill">Negative: <b id="negative">0</b></span></div></section>
 <section class="guide"><button id="guideBtn">📚 3G Abacus Custom Place-Value Reference (Counted from the Right) <span id="guideArrow">▼</span></button><div id="guideContent" class="guide-content" style="display:none"></div></section>
@@ -138,6 +194,259 @@ $('tabLessons').onclick=()=>{if(!lessonActive)startLessons()};
 $('resetBtn').onclick=resetAll;
 $('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Sound'};
 $('guideBtn').onclick=()=>{const x=$('guideContent');const open=x.style.display==='none';x.style.display=open?'block':'none';$('guideArrow').textContent=open?'▲':'▼';if(open)x.innerHTML=`<div class="guide-grid"><div class="guide-card gold"><b>4th from Right: 1 (Ones)</b><br>×1</div><div class="guide-card gold"><b>5th from Right: 10 (Tens)</b><br>×10</div><div class="guide-card"><b>6th–14th from Right</b><br>100, 1K, 10K … 10B</div><div class="guide-card red"><b>1st–3rd from Right</b><br>Negative columns</div></div><p><b>Grouped movement:</b> click any lower bead to bring it and all beads above it UP. Click the top bead to return the raised group DOWN. Each column always has a continuous UP group and DOWN group.</p><p><b>Exactly 9 beads per column:</b> 4 white + 1 red (5th) + 4 white.</p><p><b>57:</b> 5 beads UP in Tens + 7 beads UP in Ones. <b>69:</b> 6 Tens + 9 Ones.</p>`};
+
+/* =========================
+   SOLVE MODE
+   ========================= */
+let solveActive=false;
+let solveTerms=[{num:32,op:null},{num:4,op:'+'}];
+let solveSteps=[];
+let solveIndex=0;
+
+function sanitizeSolveNumber(v){
+  let n=parseInt(v,10);
+  if(!Number.isFinite(n)) n=0;
+  return Math.max(0,Math.min(99,n));
+}
+
+function renderSolveInputs(){
+  const root=$('expressionRows');
+  if(!root)return;
+  root.innerHTML='';
+  solveTerms.forEach((term,i)=>{
+    const row=document.createElement('div');
+    row.className='expression-row';
+
+    const input=document.createElement('input');
+    input.className='number-input';
+    input.type='number';
+    input.min='0';
+    input.max='99';
+    input.step='1';
+    input.value=term.num;
+    input.setAttribute('aria-label',`Number ${i+1}`);
+    input.oninput=()=>{
+      term.num=sanitizeSolveNumber(input.value);
+      input.value=term.num;
+      updateSolvePreview();
+    };
+    row.appendChild(input);
+
+    if(i<solveTerms.length-1){
+      const select=document.createElement('select');
+      select.className='operator-select';
+      select.innerHTML='<option value="+">＋</option><option value="-">−</option>';
+      select.value=solveTerms[i+1].op || '+';
+      select.onchange=()=>{
+        solveTerms[i+1].op=select.value;
+        updateSolvePreview();
+      };
+      row.appendChild(select);
+    }
+
+    if(i>=2){
+      const remove=document.createElement('button');
+      remove.className='remove-term';
+      remove.textContent='Remove';
+      remove.onclick=()=>{
+        solveTerms.splice(i,1);
+        if(solveTerms.length<2) solveTerms.push({num:0,op:'+'});
+        renderSolveInputs();
+        updateSolvePreview();
+      };
+      row.appendChild(remove);
+    }
+
+    root.appendChild(row);
+  });
+  updateSolvePreview();
+}
+
+function getSolveExpressionText(){
+  return solveTerms.map((t,i)=>{
+    if(i===0)return String(t.num);
+    return ` ${t.op==='-'?'−':'＋'} ${t.num}`;
+  }).join('');
+}
+
+function updateSolvePreview(){
+  const p=$('solveExpressionPreview');
+  if(p)p.textContent=`Expression: ${getSolveExpressionText()}`;
+}
+
+function valueToState(value){
+  // Returns the bead counts for the 14 columns.
+  // Positive values use Ones/Tens; negative values use the negative columns.
+  const state=Array(TOTAL).fill(0);
+  let v=Math.trunc(value);
+
+  if(v>=0){
+    const ones=v%10;
+    const tens=Math.floor(v/10)%10;
+    // defs indices: r14 ... r1, so r=4 is index 10 and r=5 is index 9.
+    state[defs.findIndex(d=>d.r===4)]=ones;
+    state[defs.findIndex(d=>d.r===5)]=tens;
+  }else{
+    const a=Math.abs(v);
+    const ones=a%10;
+    const tens=Math.floor(a/10)%10;
+    state[defs.findIndex(d=>d.r===1)]=ones;
+    state[defs.findIndex(d=>d.r===2)]=tens;
+  }
+  return state;
+}
+
+function applyState(state, animate=true){
+  cols.forEach((c,i)=>c.up=state[i]||0);
+  render();
+  if(animate){
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.bead').forEach(b=>b.classList.add('solve-moving'));
+      setTimeout(()=>document.querySelectorAll('.bead').forEach(b=>b.classList.remove('solve-moving')),320);
+    });
+    beep(660);
+  }
+}
+
+function makeSolveSteps(){
+  const steps=[];
+  let total=0;
+
+  steps.push({
+    total:0,
+    state:valueToState(0),
+    instruction:'Start at 0',
+    equation:'0',
+    detail:'The abacus starts empty. Click Next Step to place the first number.'
+  });
+
+  total=solveTerms[0].num;
+  steps.push({
+    total,
+    state:valueToState(total),
+    instruction:`Make ${solveTerms[0].num}`,
+    equation:String(total),
+    detail:`Move ${Math.floor(total/10)} bead${Math.floor(total/10)===1?'':'s'} in Tens and ${total%10} bead${total%10===1?'':'s'} in Ones.`
+  });
+
+  for(let i=1;i<solveTerms.length;i++){
+    const op=solveTerms[i].op || '+';
+    const n=solveTerms[i].num;
+    const before=total;
+    total=op==='+' ? total+n : total-n;
+    const word=op==='+'?'Add':'Subtract';
+    steps.push({
+      total,
+      state:valueToState(total),
+      instruction:`${word} ${n}`,
+      equation:`${before} ${op==='+'?'＋':'−'} ${n} = ${total}`,
+      detail: total>=0
+        ? `The abacus now represents ${total}. Watch the Ones/Tens beads move to the new value.`
+        : `The result is negative. The negative-value columns are used for the negative amount.`
+    });
+  }
+
+  return steps;
+}
+
+function renderSolveStep(){
+  const s=solveSteps[solveIndex];
+  if(!s)return;
+
+  $('solveStepNumber').textContent=`STEP ${solveIndex+1} OF ${solveSteps.length}`;
+  $('solveInstruction').textContent=s.instruction;
+  $('solveEquation').textContent=s.equation;
+  $('solveDetail').textContent=s.detail;
+  $('solveFinished').style.display=solveIndex===solveSteps.length-1?'block':'none';
+  $('prevSolveBtn').disabled=solveIndex===0;
+  $('nextSolveBtn').disabled=solveIndex===solveSteps.length-1;
+
+  applyState(s.state,true);
+}
+
+function startSolve(){
+  // Stop any lesson session first, without calling stopLessons (which resets the tab).
+  lessonActive=false;
+  clearTimeout(nextTimer);
+  $('lesson').style.display='none';
+
+  solveActive=true;
+  solveSteps=makeSolveSteps();
+  solveIndex=0;
+  $('solveWork').style.display='block';
+  renderSolveStep();
+}
+
+function nextSolve(){
+  if(!solveActive || solveIndex>=solveSteps.length-1)return;
+  solveIndex++;
+  renderSolveStep();
+}
+
+function previousSolve(){
+  if(!solveActive || solveIndex<=0)return;
+  solveIndex--;
+  renderSolveStep();
+}
+
+function addSolveTerm(){
+  solveTerms.push({num:0,op:'+'});
+  renderSolveInputs();
+}
+
+function stopSolve(){
+  solveActive=false;
+  solveSteps=[];
+  solveIndex=0;
+  $('solveWork').style.display='none';
+  applyState(Array(TOTAL).fill(0),false);
+}
+
+function enterSolveMode(){
+  lessonActive=false;
+  clearTimeout(nextTimer);
+  $('lesson').style.display='none';
+  solveActive=true;
+  $('solvePanel').style.display='block';
+  $('tabSolve').classList.add('active');
+  $('tabAbacus').classList.remove('active');
+  $('tabLessons').classList.remove('active');
+  renderSolveInputs();
+  stopSolve();
+}
+
+function enterAbacusMode(){
+  lessonActive=false;
+  clearTimeout(nextTimer);
+  solveActive=false;
+  $('lesson').style.display='none';
+  $('solvePanel').style.display='none';
+  $('tabAbacus').classList.add('active');
+  $('tabLessons').classList.remove('active');
+  $('tabSolve').classList.remove('active');
+  resetAll();
+}
+
+function enterLessonsMode(){
+  solveActive=false;
+  $('solvePanel').style.display='none';
+  startLessons();
+}
+
+/* Wire Solve controls. */
+$('tabSolve').onclick=enterSolveMode;
+$('addTermBtn').onclick=addSolveTerm;
+$('startSolveBtn').onclick=startSolve;
+$('nextSolveBtn').onclick=nextSolve;
+$('prevSolveBtn').onclick=previousSolve;
+
+/* Replace the tab handlers with the three-mode handlers. */
+$('tabAbacus').onclick=enterAbacusMode;
+$('tabLessons').onclick=()=>{if(!lessonActive)enterLessonsMode()};
+
+/* Initial Solve form: exactly two numbers. */
+renderSolveInputs();
+
 window.addEventListener('keydown',e=>{if(e.key==='Enter'&&lessonActive){e.preventDefault();submitLesson()}if((e.key==='r'||e.key==='R')&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))resetAll()});
 render();
 </script>
