@@ -1,0 +1,6 @@
+{
+  "name": "Virtual 3G Abacus",
+  "description": "A fully functional interactive 14-column offline 3G abacus with custom place values, grouped bead motion, live calculations, and guided lessons.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
