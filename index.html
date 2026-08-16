@@ -67,6 +67,20 @@ main{width:100%;max-width:1200px;margin:auto;padding:14px 10px 35px}
   .number-input{width:82px}.operator-select{width:60px}.solve-equation{font-size:24px}
 }
 
+
+.solve-reset-btn{
+  margin-top:10px;
+  background:#2a1717;
+  color:#ffb4b4;
+  border:1px solid #6d3030;
+  border-radius:10px;
+  padding:10px 17px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+.solve-reset-btn:hover{background:#3a1c1c}
+
 </style>
 </head>
 <body>
@@ -85,6 +99,7 @@ main{width:100%;max-width:1200px;margin:auto;padding:14px 10px 35px}
   <button class="add-term" id="addTermBtn">＋ Add Number</button>
   <div id="solveExpressionPreview" class="solve-expression-preview"></div>
   <button class="solve-start" id="startSolveBtn">START SOLUTION</button>
+  <button class="solve-reset-btn" id="resetSolveBtn">RESET SOLUTION</button>
 
   <div id="solveWork" class="solve-work" style="display:none">
     <div class="solve-step-card">
@@ -433,10 +448,40 @@ function enterLessonsMode(){
   startLessons();
 }
 
+
+function resetSolveSession(){
+  solveActive=false;
+  solveSteps=[];
+  solveIndex=0;
+
+  // Completely reset the Solve tab, including all entered numbers/operators.
+  solveTerms=[
+    {num:32,op:null},
+    {num:4,op:'+'}
+  ];
+
+  $('solveWork').style.display='none';
+  $('solveFinished').style.display='none';
+  $('solveStepNumber').textContent='';
+  $('solveInstruction').textContent='';
+  $('solveEquation').textContent='';
+  $('solveDetail').textContent='';
+  $('prevSolveBtn').disabled=true;
+  $('nextSolveBtn').disabled=true;
+
+  // Return the abacus to zero.
+  applyState(Array(TOTAL).fill(0),false);
+
+  // Rebuild the expression inputs so any added numbers and changed
+  // operators are removed too.
+  renderSolveInputs();
+}
+
 /* Wire Solve controls. */
 $('tabSolve').onclick=enterSolveMode;
 $('addTermBtn').onclick=addSolveTerm;
 $('startSolveBtn').onclick=startSolve;
+$('resetSolveBtn').onclick=resetSolveSession;
 $('nextSolveBtn').onclick=nextSolve;
 $('prevSolveBtn').onclick=previousSolve;
 
