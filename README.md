@@ -1,1 +1,0 @@
-Unnofficial virtual 3G abacus! BTW, if u download the project as a zip and double click index.html, it wont work. It has a regular abacus and even lessons where u can practice! Made by Google AI studio.

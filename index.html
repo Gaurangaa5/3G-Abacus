@@ -1,14 +1,144 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Virtual 3G Abacus</title>
-    <meta name="description" content="Interactive 14-Column Virtual 3G Abacus with offline lessons and calculation" />
-  </head>
-  <body class="bg-neutral-950 text-neutral-100 antialiased select-none">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Virtual 3G Abacus</title>
+<style>
+@font-face{font-family:"Muli";src:url("./Muli.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Muli";src:url("./Muli-Bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"Muli",Arial,sans-serif;background:#0a0a0c;color:#eee}
+button{font:inherit}body{user-select:none}
+.header{position:sticky;top:0;z-index:50;background:rgba(10,10,12,.96);border-bottom:1px solid #222;padding:12px 16px}
+.header-inner{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:800;letter-spacing:.4px}.nav{display:flex;gap:6px}.tab,.control{border:1px solid #333;background:#151518;color:#bbb;border-radius:9px;padding:9px 13px;cursor:pointer}.tab.active{background:#f59e0b;color:#111;border-color:#f59e0b;font-weight:800}.control:hover,.tab:hover{filter:brightness(1.15)}
+main{width:100%;max-width:1200px;margin:auto;padding:14px 10px 35px}
+.lesson{max-width:900px;margin:0 auto 12px;background:linear-gradient(135deg,#171717,#10131d);border:1px solid rgba(245,158,11,.45);border-radius:18px;padding:18px;box-shadow:0 12px 35px #000b}
+.lesson-top{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #292929;padding-bottom:13px}.lesson-title{font-weight:800}.muted{color:#999;font-size:12px}.stats{display:flex;gap:7px}.stat{background:#202023;border:1px solid #333;border-radius:8px;padding:6px 9px;font-size:12px}.stop{background:#3a1015;color:#ffb3bb;border:1px solid #6d2029;border-radius:8px;padding:7px 10px;cursor:pointer}
+.lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.panel{border-radius:13px;padding:15px;text-align:center;border:1px solid #333;background:#101012}.target{border-color:#9a6712;background:linear-gradient(135deg,#251b09,#0f1013)}.label{font-size:11px;font-weight:800;letter-spacing:2px;color:#aaa}.target .label{color:#fbbf24}.big{font-size:64px;line-height:1;font-weight:900;margin:7px 0;font-variant-numeric:tabular-nums}.target .big{color:#fcd34d}.good{color:#34d399!important}.digits{font-size:12px;color:#aaa;display:flex;justify-content:center;gap:7px}.pill{background:#202023;border:1px solid #333;border-radius:6px;padding:4px 7px}.feedback{margin-top:12px;padding:11px;border-radius:10px;font-weight:700}.correct{background:#06351f;color:#b7f7d9;border:1px solid #168a59}.wrong{background:#3b1015;color:#ffc3c8;border:1px solid #8b2632}.lesson-actions{display:flex;justify-content:space-between;align-items:center;margin-top:13px;gap:10px}.submit{background:#f59e0b;color:#111;border:0;border-radius:11px;padding:11px 20px;font-weight:900;cursor:pointer}.hint{background:#202023;color:#ddd;border:1px solid #333;border-radius:10px;padding:9px 13px;cursor:pointer}.hintbox{margin-top:12px;padding:12px;background:#241b08;border:1px solid #6e4c11;color:#ddd;border-radius:10px;font-size:12px;line-height:1.6}
+.abacus-wrap{width:100%;overflow-x:auto;padding:2px 0 0}.frame{min-width:820px;max-width:1160px;margin:auto;border:4px solid #303036;border-radius:20px;padding:12px;background:linear-gradient(#2b2b30,#111114 35%,#0d0d0f);box-shadow:0 20px 50px #000e,inset 0 2px 4px #ffffff22}
+.inner{border:1px solid #25252a;border-radius:13px;padding:8px;background:linear-gradient(#111113,#08080a,#111114);box-shadow:inset 0 5px 13px #000}
+.rail{height:7px;border-radius:8px;background:linear-gradient(90deg,#202024,#4a4a52,#202024);margin:0 2px 5px}
+.columns{display:grid;grid-template-columns:repeat(14,minmax(44px,1fr));gap:4px;align-items:stretch}
+.col{height:430px;position:relative;border-radius:8px;padding:2px;display:flex;flex-direction:column;align-items:center}
+.col.highlight{background:#fbbf2414;box-shadow:inset 0 0 0 1px #fbbf2466,0 0 13px #f59e0b1c}
+.col.negative{background:#ef44440b}
+.place{height:23px;z-index:5;min-width:30px;text-align:center;font-size:9px;font-weight:800;padding:5px 3px;border-radius:5px;color:#bbb;background:#202023;border:1px solid #333}
+.col.highlight .place{background:#f59e0b;color:#111;border-color:#fbbf24;box-shadow:0 0 10px #f59e0b66}
+.track{position:relative;flex:1;width:100%;display:flex;flex-direction:column;overflow:hidden;padding:3px 0}
+.rod{position:absolute;left:50%;top:0;bottom:0;transform:translateX(-50%);width:5px;border-radius:5px;background:linear-gradient(90deg,#684716,#c6a05a,#fff0b8,#bd974b,#52350d);box-shadow:inset 0 0 2px #000,0 0 3px #000;z-index:0}
+.group{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}.up{justify-content:flex-start}.down{justify-content:flex-end;flex:1}
+.gap{flex:1;min-height:20px;z-index:3}.gap.clickable{cursor:pointer}
+.bead{height:31px;width:100%;max-width:56px;margin:1px 0;cursor:pointer;transition:transform .18s ease,filter .15s;position:relative}.bead:hover{filter:brightness(1.1)}.bead:active{transform:scale(.94)}
+.bead svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 3px #000b)}
+.value-badge{height:25px;width:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;background:#202023;color:#777;z-index:4}.value-badge.active{background:#eee;color:#111}.col.highlight .value-badge.active{background:#f59e0b}
+.guide{max-width:900px;margin:18px auto 0;background:#121214;border:1px solid #29292e;border-radius:12px;padding:13px}.guide button{width:100%;background:none;color:#ddd;border:0;text-align:left;cursor:pointer;font-weight:700}.guide-content{margin-top:12px;padding-top:12px;border-top:1px solid #29292e;color:#aaa;font-size:12px;line-height:1.6}.guide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.guide-card{padding:9px;border-radius:8px;background:#1b1b1f;border:1px solid #303036}.gold{border-color:#7a5515;background:#241b09;color:#fbbf24}.red{border-color:#6d2029;background:#271013;color:#ffb3bb}
+.footer{text-align:center;color:#555;font-size:11px;border-top:1px solid #17171a;padding:12px}
+@media(max-width:700px){.brand{display:none}.header-inner{justify-content:center}.lesson-grid{grid-template-columns:1fr}.big{font-size:52px}.lesson-top{flex-wrap:wrap}.stats{order:3;width:100%}.guide-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="header"><div class="header-inner">
+<div class="brand">Virtual 3G Abacus</div>
+<div class="nav"><button class="tab active" id="tabAbacus">ABACUS</button><button class="tab" id="tabLessons">LESSONS</button></div>
+<div><button class="control" id="soundBtn">🔊 Sound</button><button class="control" id="resetBtn">↻ Reset</button></div>
+</div></header>
+<main>
+<section id="lesson" class="lesson" style="display:none"></section>
+<div class="abacus-wrap"><div class="frame"><div class="inner"><div class="rail"></div><div id="columns" class="columns"></div><div class="rail"></div></div></div></div>
+<section class="panel" style="max-width:900px;margin:14px auto 0"><div class="label">CURRENT VALUE</div><div id="current" class="big">0</div><div class="digits"><span class="pill">Tens: <b id="tens">0</b></span><span class="pill">Ones: <b id="ones">0</b></span><span class="pill">Negative: <b id="negative">0</b></span></div></section>
+<section class="guide"><button id="guideBtn">📚 3G Abacus Custom Place-Value Reference (Counted from the Right) <span id="guideArrow">▼</span></button><div id="guideContent" class="guide-content" style="display:none"></div></section>
+</main>
+<footer class="footer">Virtual 3G Abacus • Completely Offline Standalone Version</footer>
+<script>
+'use strict';
+const TOTAL=14, BEADS=9;
+const defs=[
+{r:14,v:1e10,l:'10B'},{r:13,v:1e9,l:'1B'},{r:12,v:1e8,l:'100M'},{r:11,v:1e7,l:'10M'},
+{r:10,v:1e6,l:'1M'},{r:9,v:1e5,l:'100K'},{r:8,v:1e4,l:'10K'},{r:7,v:1e3,l:'1K'},
+{r:6,v:100,l:'100'},{r:5,v:10,l:'10',h:true},{r:4,v:1,l:'1',h:true},
+{r:3,v:-100,l:'-100',n:true},{r:2,v:-10,l:'-10',n:true},{r:1,v:-1,l:'-1',n:true}
+];
+let cols=defs.map((d,i)=>({id:i,up:0,...d}));
+let lessonActive=false, soundOn=true, target=69, score=0, streak=0, feedback='', hint=false, nextTimer=null;
 
+const $=id=>document.getElementById(id);
+function svgBead(red,id){const c=red?'red':'ivory';return `<svg viewBox="0 0 70 32" aria-hidden="true"><defs>
+<linearGradient id="a${id}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${red?'#ff7b7b':'#fffaed'}"/><stop offset=".4" stop-color="${red?'#ee2a2a':'#f7eccd'}"/><stop offset=".85" stop-color="${red?'#cc1414':'#ecdcb3'}"/><stop offset="1" stop-color="${red?'#aa0d0d':'#dfcb9d'}"/></linearGradient>
+<linearGradient id="b${id}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${red?'#aa0d0d':'#dfcb9d'}"/><stop offset=".7" stop-color="${red?'#5a0404':'#b08b4f'}"/><stop offset="1" stop-color="${red?'#3b0101':'#8d6e3c'}"/></linearGradient></defs>
+<polygon points="8,1 62,1 69,16 1,16" fill="url(#a${id})" stroke="${red?'#600505':'#735c34'}" stroke-width=".7"/>
+<polygon points="1,16 69,16 62,31 8,31" fill="url(#b${id})" stroke="${red?'#400202':'#574222'}" stroke-width=".7"/>
+<ellipse cx="35" cy="11" rx="24" ry="7" fill="#fff" opacity="${red?.18:.42}"/>
+<line x1="1" y1="16" x2="69" y2="16" stroke="${red?'#ff9e9e':'#fffdf5'}" stroke-width="1.2"/>
+<line x1="2" y1="17.2" x2="68" y2="17.2" stroke="${red?'#4d0202':'#695128'}" stroke-width=".8"/>
+<ellipse cx="35" cy="2.5" rx="4.5" ry="1.8" fill="#332412" opacity=".8"/><ellipse cx="35" cy="29.5" rx="4.5" ry="1.8" fill="#1f150b" opacity=".9"/>
+</svg>`}
+function render(){
+ const root=$('columns'); root.innerHTML='';
+ cols.forEach((c,ci)=>{
+   const el=document.createElement('div'); el.className='col'+(c.h?' highlight':'')+(c.n?' negative':'');
+   const place=document.createElement('div');place.className='place';place.textContent=c.l;el.appendChild(place);
+   const track=document.createElement('div');track.className='track';
+   const rod=document.createElement('div');rod.className='rod';track.appendChild(rod);
+   const up=document.createElement('div');up.className='group up';
+   for(let b=1;b<=c.up;b++) up.appendChild(beadEl(ci,b,c.h));
+   track.appendChild(up);
+   const gap=document.createElement('div');gap.className='gap'+(c.up?' clickable':''); if(c.up) gap.onclick=()=>setUp(ci,0);track.appendChild(gap);
+   const down=document.createElement('div');down.className='group down';
+   for(let b=c.up+1;b<=9;b++) down.appendChild(beadEl(ci,b,c.h));
+   track.appendChild(down);el.appendChild(track);
+   const badge=document.createElement('div');badge.className='value-badge'+(c.up?' active':'');badge.textContent=c.up;el.appendChild(badge);
+   root.appendChild(el);
+ });
+ updateNumbers();
+}
+function beadEl(ci,b,h){const d=document.createElement('div');d.className='bead';d.innerHTML=svgBead(b===5,ci+'-'+b);d.title=`Bead ${b}: click to move beads ${b<=cols[ci].up?'down':'up'}`;d.onclick=e=>{e.stopPropagation(); clickBead(ci,b)};return d}
+function clickBead(ci,b){
+ const cur=cols[ci].up;
+ const next=b>cur?b:(b===1?0:b-1);
+ setUp(ci,next);
+}
+function setUp(ci,n){
+ n=Math.max(0,Math.min(9,n));const old=cols[ci].up; if(old===n)return;
+ cols[ci].up=n; beep(n>old?880:440); render();
+}
+function resetAll(){cols.forEach(c=>c.up=0);beep(330);render()}
+function calc(){let pos=0,neg=0,ones=0,tens=0;cols.forEach(c=>{if(c.n)neg+=c.up*Math.abs(c.v);else{pos+=c.up*c.v;if(c.r===4)ones=c.up;if(c.r===5)tens=c.up}});return{pos,neg,net:pos-neg,ones,tens}}
+function updateNumbers(){const x=calc();$('current').textContent=x.pos;$('ones').textContent=x.ones;$('tens').textContent=x.tens;$('negative').textContent=x.neg;if(lessonActive) renderLessonOnly()}
+function renderLessonOnly(){
+ const cur=calc().pos, n=$('lesson-current-number'); if(n){n.textContent=cur;n.className='big'+(cur===target?' good':'')}
+}
+function randomTarget(prev){let n;do{n=Math.floor(Math.random()*99)+1}while(n===prev);return n}
+function startLessons(){
+ lessonActive=true;target=randomTarget();score=0;streak=0;feedback='';hint=false;resetAll();$('tabLessons').classList.add('active');$('tabAbacus').classList.remove('active');renderLesson();render();
+}
+function renderLesson(){
+ const cur=calc().pos, tt=Math.floor(target/10), oo=target%10;
+ $('lesson').style.display='block';
+ $('lesson').innerHTML=`<div class="lesson-top"><div><div class="lesson-title">Interactive Practice Mode</div><div class="muted">Configure the abacus to match the target using the highlighted 1s and 10s columns.</div></div><div class="stats"><span class="stat">Score: <b style="color:#fbbf24">${score}</b></span><span class="stat">Streak: <b style="color:#34d399">🔥 ${streak}</b></span><button class="stop" id="stopBtn">Stop Lessons</button></div></div>
+ <div class="lesson-grid"><div class="panel target"><div class="label">MAKE THIS NUMBER</div><div class="big">${target}</div><div class="digits"><span class="pill">Tens: <b style="color:#fbbf24">${tt}</b></span><span class="pill">Ones: <b style="color:#fbbf24">${oo}</b></span></div></div>
+ <div class="panel"><div class="label">YOUR CURRENT VALUE</div><div id="lesson-current-number" class="big ${cur===target?'good':''}">${cur}</div><div class="digits"><span class="pill">Your Tens: <b>${calc().tens}</b></span><span class="pill">Your Ones: <b>${calc().ones}</b></span></div></div></div>
+ ${feedback?`<div class="feedback ${feedback==='Correct! 🎉'?'correct':'wrong'}">${feedback}</div>`:''}
+ <div class="lesson-actions"><button class="hint" id="hintBtn">💡 ${hint?'Hide Hint':'Show Hint'}</button><div class="muted">or press ENTER <button class="submit" id="submitBtn">SUBMIT ANSWER ✓</button></div></div>
+ ${hint?`<div class="hintbox">Tens Digit = <b>${tt}</b>: move ${tt} beads UP in the <b>5th column from the right (10s)</b>.<br>Ones Digit = <b>${oo}</b>: move ${oo} beads UP in the <b>4th column from the right (1s)</b>.<br><b>(${tt} × 10) + (${oo} × 1) = ${target}</b></div>`:''}`;
+ $('stopBtn').onclick=stopLessons;$('submitBtn').onclick=submitLesson;$('hintBtn').onclick=()=>{hint=!hint;renderLesson()};
+}
+function submitLesson(){
+ if(!lessonActive)return;
+ const cur=calc().pos;
+ if(cur===target){
+   feedback='Correct! 🎉';streak++;score+=10+streak*2;renderLesson();
+   clearTimeout(nextTimer);nextTimer=setTimeout(()=>{if(!lessonActive)return;target=randomTarget(target);feedback='';hint=false;resetAll();renderLesson()},1200);
+ }else{feedback='Not quite — try again!';streak=0;renderLesson()}
+}
+function stopLessons(){lessonActive=false;clearTimeout(nextTimer);$('lesson').style.display='none';$('tabLessons').classList.remove('active');$('tabAbacus').classList.add('active');resetAll()}
+function beep(freq){if(!soundOn)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const a=new C(),o=a.createOscillator(),g=a.createGain();o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.14,a.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.08);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.09)}catch(e){}}
+$('tabAbacus').onclick=()=>{stopLessons()};
+$('tabLessons').onclick=()=>{if(!lessonActive)startLessons()};
+$('resetBtn').onclick=resetAll;
+$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Sound'};
+$('guideBtn').onclick=()=>{const x=$('guideContent');const open=x.style.display==='none';x.style.display=open?'block':'none';$('guideArrow').textContent=open?'▲':'▼';if(open)x.innerHTML=`<div class="guide-grid"><div class="guide-card gold"><b>4th from Right: 1 (Ones)</b><br>×1</div><div class="guide-card gold"><b>5th from Right: 10 (Tens)</b><br>×10</div><div class="guide-card"><b>6th–14th from Right</b><br>100, 1K, 10K … 10B</div><div class="guide-card red"><b>1st–3rd from Right</b><br>Negative columns</div></div><p><b>Grouped movement:</b> click any lower bead to bring it and all beads above it UP. Click the top bead to return the raised group DOWN. Each column always has a continuous UP group and DOWN group.</p><p><b>Exactly 9 beads per column:</b> 4 white + 1 red (5th) + 4 white.</p><p><b>57:</b> 5 beads UP in Tens + 7 beads UP in Ones. <b>69:</b> 6 Tens + 9 Ones.</p>`};
+window.addEventListener('keydown',e=>{if(e.key==='Enter'&&lessonActive){e.preventDefault();submitLesson()}if((e.key==='r'||e.key==='R')&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))resetAll()});
+render();
+</script>
+</body></html>
