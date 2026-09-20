@@ -1,10 +1,5 @@
 Virtual 3G Abacus — Completely Offline
 ==========================================
-
-Open index.html directly by double-clicking it.
-
-No server, Node.js, npm, or internet connection is required.
-
 Fonts:
 - Muli.ttf
 - Muli-Bold.ttf
