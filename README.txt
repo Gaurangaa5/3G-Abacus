@@ -4,8 +4,6 @@ Fonts:
 - Muli.ttf
 - Muli-Bold.ttf
 
-Keep those two font files beside index.html.
-
 Solve mode:
 - Starts with exactly 2 numbers.
 - Use ＋ Add Number to add more terms.
